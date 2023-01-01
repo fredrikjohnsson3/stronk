@@ -2,30 +2,66 @@ import { BaseQueryApi } from '@reduxjs/toolkit/dist/query/baseQueryTypes';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 interface BlizzardApi {
-    realm: string;
-    name: string;
+    realmSlug: string;
+    characterName: string;
     endpoint: string;
 }
 
+interface ProfessionResponse {
+    body: {
+        primaries: {};
+        secondaries: {};
+    };
+}
+
+interface Primaries {}
+
 const API_URL = 'https://eu.api.blizzard.com/';
 
-const accessToken = '';
+const accessToken = process.env.STRONK_APP_ACCESS_TOKEN || '';
 
 export const blizzardApi = createApi({
     reducerPath: 'battleNetApi',
     baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
     endpoints: (builder) => ({
         getAchievementById: builder.query<BaseQueryApi, BlizzardApi>({
-            query: ({ realm, name, endpoint }) => ({
-                url: `profile/wow/character/${realm}/${name}/${endpoint}`,
+            query: ({ realmSlug, characterName, endpoint }) => ({
+                url: `profile/wow/character/${realmSlug}/${characterName}/${endpoint}`,
                 method: 'GET',
                 prepareHeaders: (headers: Headers) => {
                     headers.set('authorization', accessToken);
                 },
-                payload: {
-                    grant_type: 'client_credentials',
+            }),
+            // transformResponse: (res) => res.data,
+            transformErrorResponse: (err) => err.data,
+        }),
+
+        getProfessionSummary: builder.query<BaseQueryApi, BlizzardApi>({
+            query: ({ realmSlug, characterName, endpoint }) => ({
+                url: `profile/wow/character/${realmSlug}/${characterName}/${endpoint}`,
+                method: 'GET',
+                prepareHeaders: (headers: Headers) => {
+                    headers.set('authorization', accessToken);
                 },
             }),
+            // transformResponse: (res) => {
+            // if (!res.body.primaries) {
+            //     throw Error;
+            // } else {
+            //     const primaries = res.body.primaries;
+            //     const secondaries = res.body.secondaries;
+            //     let professionData = {
+            //         primaries: {},
+            //         secondaries: {},
+            //     };
+
+            //     for (i in primaries) {
+            //         professionData.primaries[primaries[i].]
+            //     }
+
+            // }
+            // },
+            transformErrorResponse: (err) => err.data,
         }),
     }),
 });
