@@ -21,7 +21,7 @@ const API_URL = 'https://eu.api.blizzard.com/';
 const accessToken = process.env.STRONK_APP_ACCESS_TOKEN || '';
 
 export const blizzardApi = createApi({
-    reducerPath: 'battleNetApi',
+    reducerPath: 'blizzardApi',
     baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
     endpoints: (builder) => ({
         getAchievementById: builder.query<BaseQueryApi, BlizzardApi>({
@@ -29,7 +29,7 @@ export const blizzardApi = createApi({
                 url: `profile/wow/character/${realmSlug}/${characterName}/${endpoint}`,
                 method: 'GET',
                 prepareHeaders: (headers: Headers) => {
-                    headers.set('authorization', accessToken);
+                    headers.set('authorization', `Bearer ${accessToken}`);
                 },
             }),
             // transformResponse: (res) => res.data,
@@ -41,7 +41,7 @@ export const blizzardApi = createApi({
                 url: `profile/wow/character/${realmSlug}/${characterName}/${endpoint}`,
                 method: 'GET',
                 prepareHeaders: (headers: Headers) => {
-                    headers.set('authorization', accessToken);
+                    headers.set('authorization', `Bearer ${accessToken}`);
                 },
             }),
             // transformResponse: (res) => {

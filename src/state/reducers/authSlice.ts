@@ -3,12 +3,14 @@ import { RootState } from '../store';
 
 interface AuthorizationState {
     loggedIn: boolean;
+    authCode: string;
     accessToken: string;
     tokenExpiryDate: string;
 }
 
 const initialState: AuthorizationState = {
     loggedIn: false,
+    authCode: '',
     accessToken: '',
     tokenExpiryDate: '',
 };
@@ -19,6 +21,9 @@ export const authorizationSlice = createSlice({
     reducers: {
         setLoggedIn: (state, action: PayloadAction<boolean>) => {
             state.loggedIn = action.payload;
+        },
+        setAuthCode: (state, action: PayloadAction<string>) => {
+            state.authCode = action.payload;
         },
         setAccessToken: (state, action: PayloadAction<string>) => {
             state.accessToken = action.payload;
@@ -31,11 +36,13 @@ export const authorizationSlice = createSlice({
     },
 });
 
-export const { setLoggedIn, setAccessToken, setTokenExpiryDate } =
+export const { setLoggedIn, setAuthCode, setAccessToken, setTokenExpiryDate } =
     authorizationSlice.actions;
 
 export const selectIsLoggedIn = (state: RootState) =>
     state.authorization.loggedIn;
+export const selectAuthCode = (state: RootState) =>
+    state.authorization.authCode;
 export const selectAccessToken = (state: RootState) =>
     state.authorization.accessToken;
 export const selectTokenExpiryDate = (state: RootState) =>
