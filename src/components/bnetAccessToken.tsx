@@ -14,7 +14,7 @@ export const BnetAccessToken: React.FC<{ authCode: string }> = ({
 
     const tokenExpiresDate = useAppSelector(selectTokenExpiryDate);
 
-    if (isError || !res) return <div>Error! {}</div>;
+    if (isError) return <div>Error! {}</div>;
     if (isLoading && !isError) return <div>Loading...</div>;
 
     return (

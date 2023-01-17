@@ -1,69 +1,157 @@
-import { BaseQueryApi } from '@reduxjs/toolkit/dist/query/baseQueryTypes';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import {
+    BlizzardEquipmentRes,
+    BlizzardProfileRes,
+    Character,
+    CharEmbellished,
+    CharSetBonus,
+} from '../state';
+import {
+    setSetBonusEmbellished,
+    updateCharacter,
+} from '../state/reducers/rosterSlice';
 
 interface BlizzardApi {
-    realmSlug: string;
-    characterName: string;
-    endpoint: string;
+    id: string;
+    realmSlug?: string;
+    characterName?: string;
+    accessToken: string;
+    endpoint?: string;
+    href?: string;
 }
 
-interface ProfessionResponse {
-    body: {
-        primaries: {};
-        secondaries: {};
-    };
-}
-
-interface Primaries {}
-
-const API_URL = 'https://eu.api.blizzard.com/';
-
-const accessToken = process.env.STRONK_APP_ACCESS_TOKEN || '';
+const API_URL = '';
+const NAMESPACE = 'profile-eu';
+const LOCALE = 'en_GB';
 
 export const blizzardApi = createApi({
     reducerPath: 'blizzardApi',
     baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
     endpoints: (builder) => ({
-        getAchievementById: builder.query<BaseQueryApi, BlizzardApi>({
-            query: ({ realmSlug, characterName, endpoint }) => ({
-                url: `profile/wow/character/${realmSlug}/${characterName}/${endpoint}`,
-                method: 'GET',
-                prepareHeaders: (headers: Headers) => {
-                    headers.set('authorization', `Bearer ${accessToken}`);
-                },
-            }),
-            // transformResponse: (res) => res.data,
-            transformErrorResponse: (err) => err.data,
+        getCharacher: builder.query<BlizzardProfileRes, BlizzardApi>({
+            query: ({ characterName, realmSlug, accessToken }) => {
+                return {
+                    url: `https://eu.api.blizzard.com/profile/wow/character/${realmSlug}/${characterName}`,
+                    method: 'GET',
+                    params: {
+                        namespace: NAMESPACE,
+                        locale: LOCALE,
+                        access_token: accessToken,
+                    },
+                };
+            },
+            async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+                try {
+                    const {
+                        name,
+                        character_class,
+                        active_spec,
+                        realm,
+                        last_login_timestamp,
+                        equipped_item_level,
+                        mythic_keystone_profile,
+                        professions,
+                        equipment,
+                        media,
+                        achievements,
+                        reputations,
+                    } = (await queryFulfilled).data;
+
+                    const character: Character = {
+                        _id: id,
+                        _name: name,
+                        _realm: realm.name,
+                        _class: character_class.name,
+                        _currSpec: active_spec.name,
+                        _currIlvl: equipped_item_level,
+                        _lastLogIn: last_login_timestamp,
+                        _equipmentHref: equipment.href,
+                        _professionsHref: professions.href,
+                        _keystoneHref: mythic_keystone_profile.href,
+                        _achievementsHref: achievements.href,
+                        _mediaHref: media.href,
+                        _reputationsHref: reputations.href,
+                    };
+
+                    dispatch(updateCharacter(character));
+                } catch (error) {}
+            },
         }),
+        getEquipment: builder.query<BlizzardEquipmentRes, BlizzardApi>({
+            query: ({ href, accessToken }) => {
+                return {
+                    url: `${href}`,
+                    method: 'GET',
+                    params: {
+                        namespace: NAMESPACE,
+                        locale: LOCALE,
+                        access_token: accessToken,
+                    },
+                };
+            },
+            async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+                try {
+                    const { equipped_item_sets, equipped_items } = (
+                        await queryFulfilled
+                    ).data;
 
-        getProfessionSummary: builder.query<BaseQueryApi, BlizzardApi>({
-            query: ({ realmSlug, characterName, endpoint }) => ({
-                url: `profile/wow/character/${realmSlug}/${characterName}/${endpoint}`,
-                method: 'GET',
-                prepareHeaders: (headers: Headers) => {
-                    headers.set('authorization', `Bearer ${accessToken}`);
-                },
-            }),
-            // transformResponse: (res) => {
-            // if (!res.body.primaries) {
-            //     throw Error;
-            // } else {
-            //     const primaries = res.body.primaries;
-            //     const secondaries = res.body.secondaries;
-            //     let professionData = {
-            //         primaries: {},
-            //         secondaries: {},
-            //     };
+                    const setBonuses: CharSetBonus[] = [];
+                    equipped_item_sets.forEach((set) => {
+                        const setId = set.item_set.id;
+                        const bonusArray: string[] = [];
+                        set.effects.forEach((bonus) => {
+                            if (!bonus.is_active) return;
+                            bonusArray.push(bonus.display_string);
+                        });
+                        const bonuses = bonusArray.join('\n');
 
-            //     for (i in primaries) {
-            //         professionData.primaries[primaries[i].]
-            //     }
+                        if (bonuses === '') return;
+                        setBonuses.push({
+                            setId,
+                            bonuses,
+                        });
+                    });
 
-            // }
-            // },
-            transformErrorResponse: (err) => err.data,
+                    const embellished: CharEmbellished[] = [];
+                    equipped_items.map((item) => {
+                        if (!item.limit_category) return;
+                        else if (
+                            item.limit_category ===
+                            'Unique-Equipped: Embellished (2)'
+                        ) {
+                            const { name, media, spells } = item;
+
+                            if (!spells) return;
+                            const embellishedMediaHref = media.key.href;
+                            const spellsDescription: string[] = [];
+
+                            spells.forEach((spell) => {
+                                spellsDescription.push(
+                                    [spell.spell.name, spell.description].join(
+                                        ' - '
+                                    )
+                                );
+                            });
+                            const description = spellsDescription.join('\n');
+                            embellished.push({
+                                name,
+                                embellishedMediaHref,
+                                description,
+                            });
+                        }
+                    });
+
+                    const character: Character = {
+                        _id: id,
+                        _embellished: embellished,
+                        _setBonus: setBonuses,
+                    };
+
+                    dispatch(setSetBonusEmbellished(character));
+                } catch (error) {}
+            },
         }),
     }),
 });
 
-export const { useGetAchievementByIdQuery } = blizzardApi;
+export const { useGetCharacherQuery, useGetEquipmentQuery } = blizzardApi;

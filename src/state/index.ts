@@ -1,2 +1,3 @@
 export * from './store';
-export * from './card';
+export * from './types';
+export * from './classRoleSpec';
