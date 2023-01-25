@@ -1,12 +1,12 @@
 import AuthMenu from './authMenu';
-import RosterCard from './rosterCard';
+import Cards from './cards';
 
 const Main: React.FC = () => {
     return (
         <div className='main'>
             <>Glacias!</>
             <AuthMenu />
-            <RosterCard />
+            <Cards />
         </div>
     );
 };

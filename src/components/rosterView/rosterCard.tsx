@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
-import { useAppSelector } from '../state';
-import { selectRosterUpdatedAt } from '../state/reducers/rosterSlice';
+import { useAppSelector } from '../../state';
+import { selectRosterUpdatedAt } from '../../state/reducers/rosterSlice';
 import AddCharacter from './addCharacter';
-import CharacterRow from './rosterView/characterRow';
+import CharacterRow from './characterRow';
 
 const RosterCard: React.FC = () => {
     const rosterUpdatedAt = useAppSelector(selectRosterUpdatedAt);
@@ -21,17 +21,17 @@ const RosterCard: React.FC = () => {
 
     return (
         <div>
-            {rosterUpdatedAt}
+            {!rosterUpdatedAt ? '' : new Date(rosterUpdatedAt).toLocaleString()}
             <table>
                 <thead />
                 <tbody>
                     <tr>
+                        <th></th>
                         <th>Name</th>
                         <th>Role</th>
                         <th>Class</th>
                         <th>Spec</th>
                         <th>ilvl</th>
-                        <th></th>
                         <th>set</th>
                         <th>embelish</th>
                         <th>rio</th>

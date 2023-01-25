@@ -1,8 +1,8 @@
 import { FormEvent, useState, useEffect } from 'react';
-import { useGetCharacherQuery } from '../services/blizzardapi';
-import { useAppDispatch, useAppSelector } from '../state';
-import { selectAccessToken } from '../state/reducers/authSlice';
-import { addCharacter } from '../state/reducers/rosterSlice';
+import { useGetCharacterQuery } from '../../services/blizzardapi';
+import { useAppDispatch, useAppSelector } from '../../state';
+import { selectAccessToken } from '../../state/reducers/authSlice';
+import { addCharacter } from '../../state/reducers/rosterSlice';
 
 const AddCharacter: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -24,7 +24,7 @@ const AddCharacter: React.FC = () => {
         isError,
         error,
         fulfilledTimeStamp,
-    } = useGetCharacherQuery(
+    } = useGetCharacterQuery(
         { id, characterName, realmSlug, accessToken },
         { skip: !getCharacter || !accessToken }
     );

@@ -38,7 +38,10 @@ export const cardsSlice = createSlice({
         // add a new card
         addCard: (
             state,
-            action: PayloadAction<{ type: CardTypes; id: string }>
+            action: PayloadAction<{
+                type: CardTypes;
+                previousCardId: string | null;
+            }>
         ) => {
             // Creates a new empty card with a new Id of the specified type
             const card: Card = {
@@ -48,19 +51,13 @@ export const cardsSlice = createSlice({
             };
 
             state.data[card.id] = card;
-            state.order.unshift(card.id);
 
-            // use something like below if we'd like to add cards anywhere in the order
+            const foundIndex = state.order.findIndex(
+                (id) => id === action.payload.previousCardId
+            );
 
-            // const foundIndex = state.order.findIndex(
-            //     (id) => id === action.payload.id
-            // );
-
-            // if (foundIndex < 0) {
-            //     state.order.unshift(card.id);
-            // } else {
-            //     state.order.splice(foundIndex + 1, 0, card.id);
-            // }
+            if (foundIndex < 0) state.order.unshift(card.id);
+            else state.order.splice(foundIndex + 1, 0, card.id);
         },
 
         // handle cards being dragged in to a new position

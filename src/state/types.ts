@@ -11,6 +11,31 @@ export interface Card {
     content: string;
 }
 
+export interface Character {
+    _id: string;
+    _name?: string;
+    _realm?: string;
+    _class?: string;
+    _role?: string;
+    _mainSpec?: string;
+    _currSpec?: string;
+    _keystoneHref?: string;
+    _professionsHref?: string;
+    _mainIlvl?: number;
+    _currIlvl?: number;
+    _equipmentHref?: string;
+    _lastLogIn?: number;
+    _reputationsHref?: string;
+    _mediaHref?: string;
+    _achievementsHref?: string;
+    _setBonus?: CharSetBonus[];
+    _embellished?: CharEmbellished[];
+    _professions?: CharProfs;
+    _keystones?: CharKeystones;
+    _charThumbnailUrl?: string;
+}
+export type Roster = Character;
+
 export interface BlizzardApi {
     realmSlug: string;
     characterName: string;
@@ -67,27 +92,17 @@ export interface BlizzardProfile {
 }
 export type BlizzardProfileRes = BlizzardProfile;
 
-export interface Character {
-    _id: string;
-    _name?: string;
-    _realm?: string;
-    _class?: string;
-    _role?: string;
-    _mainSpec?: string;
-    _currSpec?: string;
-    _keystoneHref?: string;
-    _professionsHref?: string;
-    _mainIlvl?: number;
-    _currIlvl?: number;
-    _equipmentHref?: string;
-    _lastLogIn?: number;
-    _reputationsHref?: string;
-    _mediaHref?: string;
-    _achievementsHref?: string;
-    _setBonus?: CharSetBonus[];
-    _embellished?: CharEmbellished[];
+export type CharMediaAssets = {
+    key: string;
+    value: string;
+};
+
+export interface BlizzardCharMedia {
+    _links: {};
+    character: {};
+    assets: CharMediaAssets[];
 }
-export type Roster = Character;
+export type BlizzardCharMediaRes = BlizzardCharMedia;
 
 export type SetItems = {
     item: {
@@ -191,6 +206,7 @@ export type BlizzardEquipmentRes = BlizzardEquipment;
 
 export interface CharSetBonus {
     setId: number;
+    setDisplayString: RegExpExecArray | string;
     bonuses: string;
 }
 export type CharSetBonusType = CharSetBonus;
@@ -201,3 +217,51 @@ export interface CharEmbellished {
     description: string;
 }
 export type CharEmbellishedType = CharEmbellished;
+
+export type ProfTiers = {
+    known_recipes: [];
+    max_skill_points: number;
+    skill_points: number;
+    tier: {
+        name: string;
+        id: number;
+    };
+};
+
+export type BlizzardProfs = {
+    profession: {
+        id: number;
+        key: { href: string };
+        name: string;
+    };
+    tiers: ProfTiers[];
+};
+
+export interface CharProfs {
+    character: {};
+    primaries: BlizzardProfs[];
+    secondaries: BlizzardProfs[];
+    _links: {};
+}
+export type CharProfsRes = CharProfs;
+
+export type KeystoneSeason = {
+    id: number;
+    key: { href: string };
+};
+
+export interface CharKeystones {
+    character: {};
+    current_mythic_rating: {
+        color: { r: number; g: number; b: number; a: number };
+        rating: number;
+    };
+    current_period: {
+        period: {
+            id: number;
+            key: { href: string };
+        };
+    };
+    seasons: KeystoneSeason[];
+}
+export type KeystoneRes = CharKeystones;

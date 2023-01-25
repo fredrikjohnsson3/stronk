@@ -31,7 +31,7 @@ export const authorizationSlice = createSlice({
         setTokenExpiryDate: (state, action: PayloadAction<number>) => {
             const date = new Date();
             date.setSeconds(date.getSeconds() + action.payload);
-            state.tokenExpiryDate = date.toISOString();
+            state.tokenExpiryDate = date.toLocaleString();
         },
     },
 });

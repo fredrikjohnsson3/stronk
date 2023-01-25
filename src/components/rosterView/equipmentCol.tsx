@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Character, useAppSelector } from '../../state';
 import { selectAccessToken } from '../../state/reducers/authSlice';
 import { useGetEquipmentQuery } from '../../services/blizzardapi';
@@ -8,30 +7,17 @@ const EquipmentColumns: React.FC<{ character: Character }> = ({
     character,
 }) => {
     const { _id, _equipmentHref, _embellished, _setBonus } = character;
-
     const accessToken = useAppSelector(selectAccessToken);
-
-    const [getEquipment, setGetEquipment] = useState(false);
-    const [isEquipment, setIsEquipment] = useState(false);
 
     const { fulfilledTimeStamp } = useGetEquipmentQuery(
         { href: _equipmentHref, accessToken, id: _id },
-        { skip: !_equipmentHref || !getEquipment }
+        { skip: !_equipmentHref }
     );
-
-    const handleClick = () => {
-        if (!getEquipment) setGetEquipment(true);
-    };
-
-    useEffect(() => {
-        if (!fulfilledTimeStamp) return;
-        setIsEquipment(true);
-    }, [fulfilledTimeStamp]);
 
     const setBonuses = _setBonus?.map((set) => {
         return (
             <p className='tooltip' key={set.setId}>
-                {set.setId}
+                {set.setDisplayString ? set.setDisplayString[1] : ''}
                 <span className='tooltiptext'>{set.bonuses}</span>
                 <br></br>
             </p>
@@ -50,11 +36,8 @@ const EquipmentColumns: React.FC<{ character: Character }> = ({
 
     return (
         <>
-            <td>
-                <button onClick={handleClick}>E</button>
-            </td>
-            <td>{!isEquipment ? '' : setBonuses}</td>
-            <td>{!isEquipment ? '' : embellishments}</td>
+            <td>{!fulfilledTimeStamp ? '' : setBonuses}</td>
+            <td>{!fulfilledTimeStamp ? '' : embellishments}</td>
         </>
     );
 };

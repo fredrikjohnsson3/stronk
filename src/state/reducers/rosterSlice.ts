@@ -49,6 +49,18 @@ export const rosterSlice = createSlice({
             state.data[id]._setBonus = action.payload._setBonus;
             state.data[id]._embellished = action.payload._embellished;
         },
+        setCharThumbnailUrl: (state, action: PayloadAction<Roster>) => {
+            const id = action.payload._id;
+            state.data[id]._charThumbnailUrl = action.payload._charThumbnailUrl;
+        },
+        setCharProfessions: (state, action: PayloadAction<Roster>) => {
+            const id = action.payload._id;
+            state.data[id]._professions = action.payload._professions;
+        },
+        setCharKeystones: (state, action: PayloadAction<Roster>) => {
+            const id = action.payload._id;
+            state.data[id]._keystones = action.payload._keystones;
+        },
     },
 });
 
@@ -58,6 +70,9 @@ export const {
     deleteCharacter,
     setRoleSpec,
     setSetBonusEmbellished,
+    setCharThumbnailUrl,
+    setCharProfessions,
+    setCharKeystones,
 } = rosterSlice.actions;
 
 export const selectRosterOrder = (state: RootState) => state.roster.order;

@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { Character, useAppDispatch } from '../../state';
 import { deleteCharacter } from '../../state/reducers/rosterSlice';
 import EquipmentColumns from './equipmentCol';
+import CharacterThumbnail from './characterThumbnail';
 import RoleCol from './roleCol';
+import ProfessionsCol from './professionsCol';
+import MythicPlusCol from './mythicPlusCol';
 
 const CharacterRow: React.FC<{ character: Character }> = ({ character }) => {
     const {
@@ -21,8 +24,12 @@ const CharacterRow: React.FC<{ character: Character }> = ({ character }) => {
     const [characterIlvl, setCharacterIlvl] = useState('');
 
     useEffect(() => {
-        if (!_mainSpec) return;
-        else if (_mainSpec === _currSpec?.toLowerCase()) {
+        if (!_mainSpec) {
+            setCharacterSpec(`- (${_currSpec})`);
+            if (!_currIlvl) return;
+            setCharacterIlvl(`- (${_currIlvl})`);
+            return;
+        } else if (_mainSpec === _currSpec?.toLowerCase()) {
             setCharacterSpec(_mainSpec);
             if (!_mainIlvl) return;
             setCharacterIlvl(_mainIlvl.toString());
@@ -45,14 +52,15 @@ const CharacterRow: React.FC<{ character: Character }> = ({ character }) => {
 
     return (
         <tr>
+            <CharacterThumbnail character={character} />
             <td>{_realm === 'Tarren Mill' ? _name : `${_name} - ${_realm}`}</td>
             <RoleCol character={character} />
             <td>{'' || _class}</td>
             <td>{'' || characterSpec}</td>
             <td>{'' || characterIlvl}</td>
             <EquipmentColumns character={character} />
-            <td>*PH: 1234</td>
-            <td>*PH: bs / jc</td>
+            <MythicPlusCol character={character} />
+            <ProfessionsCol character={character} />
             <td>
                 <button onClick={onClick}>X</button>
             </td>
